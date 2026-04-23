@@ -1,4 +1,22 @@
-"""Mock LLM Generator - Simulates a backend LLM inference service."""
+"""
+app/services/mock_llm.py
+
+Mock LLM Generator - Simulates a backend LLM inference service.
+
+This module contains a mock implementation of an LLM (Large Language Model)
+backend. It simulates the behavior of a real LLM API for testing purposes.
+
+Why do we need a mock?
+- Real LLM APIs cost money and require API keys
+- We want to test our rate limiter and circuit breaker without depending on a real backend
+- We want fast, reliable tests that don't depend on external services
+
+How it works:
+1. We have a hardcoded response string
+2. We split it into words
+3. We yield one word at a time with a small delay
+4. This simulates how a real streaming LLM returns tokens gradually
+"""
 
 import asyncio
 from typing import AsyncGenerator
@@ -15,7 +33,8 @@ async def generate_mock_response(
     words one at a time with a small delay between each word.
 
     Args:
-        prompt: The user's prompt (not used in mock, but included for interface compatibility)
+        prompt: The user's prompt
+                 (not used in mock, but included for interface compatibility)
         simulate_error: If True, raises a ConnectionError to test circuit breaker
 
     Yields:
@@ -25,8 +44,10 @@ async def generate_mock_response(
         ConnectionError: If simulate_error is True
 
     Example:
-        async for word in generate_mock_response("Hello"):
+        async for word in generate_mock_response("Hello world"):
             print(word, end=" ")
+
+        # Output: This is a simulated streaming response from the backend system...
     """
     if simulate_error:
         raise ConnectionError("Mock backend failure")

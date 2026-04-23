@@ -35,18 +35,39 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
+## Project Structure
+
+```
+resilient-ai-gateway/
+├── app/
+│   ├── __init__.py           # Package initialization
+│   ├── main.py               # FastAPI entry point with lifespan
+│   ├── api/
+│   │   ├── __init__.py
+│   │   └── routes.py         # POST /generate streaming endpoint
+│   ├── core/
+│   │   ├── __init__.py
+│   │   ├── logging.py        # Logging setup
+│   │   └── exceptions.py     # Custom exception handlers
+│   └── services/
+│       ├── __init__.py
+│       ├── rate_limiter.py   # In-memory rate limiter (5 req/60s)
+│       ├── circuit_breaker.py # State machine (CLOSED/OPEN/HALF_OPEN)
+│       └── mock_llm.py       # Mock LLM streaming response
+├── requirements.txt
+└── README.md
+```
+
 ## API Endpoints
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/health` | GET | Health check |
 | `/api/v1/generate` | POST | Streaming inference (SSE) |
-| `/api/v1/proxy` | POST | Proxy request (rate limited) |
-| `/api/v1/status` | GET | Circuit breaker status |
-| `/api/v1/reset-circuit` | POST | Reset circuit breaker |
 
 ## Configuration
 
-- `REQUESTS_PER_MINUTE`: Rate limit (default: 60)
-- `FAILURE_THRESHOLD`: Circuit breaker threshold (default: 5)
-- `RECOVERY_TIMEOUT`: Recovery timeout in seconds (default: 60)
+- `max_requests`: Rate limit (default: 5 requests)
+- `window_seconds`: Rate limit window (default: 60 seconds)
+- `failure_threshold`: Circuit breaker threshold (default: 5 failures)
+- `recovery_timeout`: Recovery timeout (default: 60 seconds)
